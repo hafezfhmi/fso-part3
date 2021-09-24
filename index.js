@@ -66,10 +66,16 @@ const randomID = () => {
 app.post('/api/persons', (request, response) => {
   const body = request.body;
 
-  if (!body.name || !body.number) {
+  if (!body.name) {
     return response.status(404).json({
-      error: 'name or number missing',
+      error: 'name is missing',
     });
+  } else if (!body.number) {
+    return response.status(404).json({
+      error: 'number is missing',
+    });
+  } else if (persons.find((curr) => curr.name === body.name) !== undefined) {
+    return response.status(406).json({ error: 'name must be unique' });
   }
 
   const person = {
