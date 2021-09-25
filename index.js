@@ -4,7 +4,15 @@ const app = express();
 
 app.use(express.json());
 
-app.use(morgan('tiny'));
+// https://github.com/expressjs/morgan#creating-new-tokens
+morgan.token('body', function (req, res) {
+  return JSON.stringify(req.body);
+});
+
+// https://github.com/expressjs/morgan#using-format-string-of-predefined-tokens
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms :body')
+);
 
 let persons = [
   {
