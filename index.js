@@ -1,8 +1,10 @@
 const express = require('express');
 var morgan = require('morgan');
+const cors = require('cors');
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 // https://github.com/expressjs/morgan#creating-new-tokens
 morgan.token('body', function (req, res) {
