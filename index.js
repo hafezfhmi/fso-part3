@@ -5,6 +5,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static('build'));
 
 // https://github.com/expressjs/morgan#creating-new-tokens
 morgan.token('body', function (req, res) {
