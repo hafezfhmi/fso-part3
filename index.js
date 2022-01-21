@@ -1,7 +1,25 @@
+// import env file
+require('dotenv').config();
+
 const express = require('express');
-var morgan = require('morgan');
+const morgan = require('morgan');
 const cors = require('cors');
+const mongoose = require('mongoose');
+
 const app = express();
+
+// connect to database
+const url = process.env.MONGODB_URI;
+mongoose.connect(url);
+
+// create a schema
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+});
+
+// create a model
+const Person = mongoose.model('Person', personSchema);
 
 app.use(express.json());
 app.use(cors());
@@ -40,8 +58,11 @@ let persons = [
   },
 ];
 
+// get all persons
 app.get('/api/persons', (request, response) => {
-  response.json(persons);
+  Person.find({}).then((people) => {
+    response.json(people);
+  });
 });
 
 app.get('/api/persons/:id', (request, response) => {
@@ -102,7 +123,4 @@ app.post('/api/persons', (request, response) => {
   response.json(person);
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(process.env.PORT);
