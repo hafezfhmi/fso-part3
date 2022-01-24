@@ -25,7 +25,7 @@ app.use(
 );
 
 // get all persons
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
   Person.find({})
     .then((people) => {
       response.json(people);
@@ -34,7 +34,7 @@ app.get('/api/persons', (request, response) => {
 });
 
 // get person by id
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then((person) => {
       if (person) {
@@ -46,7 +46,7 @@ app.get('/api/persons/:id', (request, response) => {
     .catch((error) => next(error));
 });
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   let date = new Date();
 
   Person.find({})
@@ -69,7 +69,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 });
 
 // post persons to db
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body;
 
   if (!body.name) {
@@ -82,19 +82,27 @@ app.post('/api/persons', (request, response) => {
     });
   }
 
-  // create object using Person model
-  const person = new Person({
-    name: body.name,
-    number: body.number,
+  // check if name is already in phonebook. Return error if it is else, add new item to database
+  Person.find({ name: body.name }).then((res) => {
+    if (res.length !== 0) {
+      return response.status(404).json({
+        error: 'name is already in phonebook',
+      });
+    } else {
+      // create object using Person model
+      const person = new Person({
+        name: body.name,
+        number: body.number,
+      });
+      // save to db using Person model method
+      person
+        .save()
+        .then((savedPerson) => {
+          response.json(savedPerson);
+        })
+        .catch((error) => next(error));
+    }
   });
-
-  // save to db using Person model method
-  person
-    .save()
-    .then((savedPerson) => {
-      response.json(savedPerson);
-    })
-    .catch((error) => next(error));
 });
 
 // put/update persons in db
@@ -106,7 +114,10 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: body.number,
   };
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person, {
+    new: true,
+    runValidators: true,
+  })
     .then((updatedPerson) => {
       response.json(updatedPerson);
     })

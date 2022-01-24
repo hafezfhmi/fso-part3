@@ -16,8 +16,21 @@ mongoose
 
 // create schema (blueprint)
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: 3,
+    require: true,
+  },
+  number: {
+    type: String,
+    minlength: 8,
+    require: true,
+    validate: {
+      validator: function (v) {
+        return /[0-9]{1,3}-[0-9]+/.test(v);
+      },
+    },
+  },
 });
 
 // reformat our db object
