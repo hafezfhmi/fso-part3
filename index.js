@@ -26,29 +26,37 @@ app.use(
 
 // get all persons
 app.get('/api/persons', (request, response) => {
-  Person.find({}).then((people) => {
-    response.json(people);
-  });
+  Person.find({})
+    .then((people) => {
+      response.json(people);
+    })
+    .catch((error) => next(error));
 });
 
 // get person by id
 app.get('/api/persons/:id', (request, response) => {
-  Person.findById(request.params.id).then((person) => {
-    if (person) {
-      response.json(person);
-    } else {
-      response.status(404).end();
-    }
-  });
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
 
 app.get('/info', (request, response) => {
   let date = new Date();
 
-  response.send(
-    `<p>Phonebook has info for ${persons.length} people</p>
-    <p>${date}</p>`
-  );
+  Person.find({})
+    .then((people) => {
+      response.send(
+        `<p>Phonebook has info for ${people.length} people</p>
+      <p>${date}</p>`
+      );
+    })
+    .catch((error) => next(error));
 });
 
 // delete by id
@@ -81,9 +89,12 @@ app.post('/api/persons', (request, response) => {
   });
 
   // save to db using Person model method
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 // put/update persons in db
