@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.static('build'));
 
 // https://github.com/expressjs/morgan#creating-new-tokens
-morgan.token('body', function (req, res) {
+morgan.token('body', function (req) {
   return JSON.stringify(req.body);
 });
 
@@ -62,7 +62,7 @@ app.get('/info', (request, response, next) => {
 // delete by id
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));
